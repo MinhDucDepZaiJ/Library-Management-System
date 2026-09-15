@@ -1,0 +1,12 @@
+package com.library.lms.dto.request;
+
+import com.library.lms.model.Role;
+import jakarta.validation.constraints.NotNull;
+import lombok.Data;
+
+@Data
+public class UpdateRoleRequest {
+
+    @NotNull(message = "Vai trò không được để trống")
+    private Role role;
+}

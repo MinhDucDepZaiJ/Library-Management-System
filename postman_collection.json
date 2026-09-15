@@ -1,0 +1,298 @@
+{
+  "info": {
+    "name": "Library Management System API",
+    "description": "Bộ sưu tập Postman để kiểm thử REST API của Hệ thống Quản lý Thư viện (Spring Boot + MySQL + JWT).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "token", "value": "" },
+    { "key": "adminToken", "value": "" },
+    { "key": "bookId", "value": "1" },
+    { "key": "authorId", "value": "1" },
+    { "key": "categoryId", "value": "1" },
+    { "key": "borrowRecordId", "value": "1" },
+    { "key": "userId", "value": "2" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register (User)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/auth/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"reader1\",\n  \"password\": \"password123\",\n  \"email\": \"reader1@example.com\",\n  \"fullName\": \"Nguyen Van A\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login (User)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.data && json.data.token) { pm.collectionVariables.set('token', json.data.token); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"reader1\",\n  \"password\": \"password123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.data && json.data.token) { pm.collectionVariables.set('adminToken', json.data.token); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Categories (Admin/Librarian)",
+      "item": [
+        {
+          "name": "Create Category",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": "{{baseUrl}}/api/categories",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Công nghệ thông tin\",\n  \"description\": \"Sách về lập trình, CNTT\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get All Categories",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/categories"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Authors (Admin/Librarian)",
+      "item": [
+        {
+          "name": "Create Author",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": "{{baseUrl}}/api/authors",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Robert C. Martin\",\n  \"biography\": \"Tác giả sách Clean Code\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get All Authors",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/authors"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Books",
+      "item": [
+        {
+          "name": "Create Book (Admin/Librarian)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": "{{baseUrl}}/api/books",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Clean Code\",\n  \"isbn\": \"9780132350884\",\n  \"publishedYear\": 2008,\n  \"description\": \"A Handbook of Agile Software Craftsmanship\",\n  \"quantity\": 5,\n  \"authorId\": {{authorId}},\n  \"categoryId\": {{categoryId}}\n}"
+            }
+          }
+        },
+        {
+          "name": "Get All Books",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/books?page=0&size=10"
+          }
+        },
+        {
+          "name": "Search Books By Title",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/books?title=clean"
+          }
+        },
+        {
+          "name": "Get Book By Id",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/books/{{bookId}}"
+          }
+        },
+        {
+          "name": "Update Book (Admin/Librarian)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": "{{baseUrl}}/api/books/{{bookId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Clean Code (2nd Edition)\",\n  \"isbn\": \"9780132350884\",\n  \"publishedYear\": 2008,\n  \"description\": \"Cập nhật mô tả\",\n  \"quantity\": 8,\n  \"authorId\": {{authorId}},\n  \"categoryId\": {{categoryId}}\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Book (Admin/Librarian)",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": "{{baseUrl}}/api/books/{{bookId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Borrow / Return",
+      "item": [
+        {
+          "name": "Borrow Book (User)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/borrow/{{bookId}}"
+          }
+        },
+        {
+          "name": "Return Book (User)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/borrow/{{borrowRecordId}}/return"
+          }
+        },
+        {
+          "name": "My Borrow Records (User)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/borrow/my-records"
+          }
+        },
+        {
+          "name": "All Borrow Records (Admin/Librarian)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": "{{baseUrl}}/api/borrow/all"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users (Admin only)",
+      "item": [
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": "{{baseUrl}}/api/users"
+          }
+        },
+        {
+          "name": "Update User Role",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": "{{baseUrl}}/api/users/{{userId}}/role",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"LIBRARIAN\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Disable User",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": "{{baseUrl}}/api/users/{{userId}}/disable"
+          }
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": "{{baseUrl}}/api/users/{{userId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/health"
+          }
+        }
+      ]
+    }
+  ]
+}
